@@ -20,54 +20,6 @@ CACHE_DIR = Path("data_cache")
 CACHE_DIR.mkdir(exist_ok=True)
 
 
-def open_or_download(url, local_name=None):
-    """
-    Download a CSV file from URL to local cache, or return cached DataFrame if exists.
-    
-    Checks if the file already exists in the cache directory. If it exists,
-    loads and returns it as a DataFrame without downloading. If not, downloads
-    the file, saves it to the cache, and returns it as a DataFrame.
-    
-    Parameters
-    ----------
-    url : str
-        URL of the CSV file to download.
-    local_name : str, optional
-        Custom filename for the cached file. If None, uses the filename
-        extracted from the URL.
-    
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing the CSV data.
-    
-    Raises
-    ------
-    requests.HTTPError
-        If the HTTP request fails (e.g., 404, 500).
-    pd.errors.EmptyDataError
-        If the CSV file is empty or cannot be parsed.
-    
-    Examples
-    --------
-    >>> df = open_or_download("https://example.com/data.csv")
-    >>> type(df)
-    <class 'pandas.core.frame.DataFrame'>
-    """
-    filename = local_name or url.split('/')[-1]
-    local_path = CACHE_DIR / filename
-    
-    if local_path.exists():
-        print(f"loaded {filename}")
-        return pd.read_csv(local_path, low_memory=False)
-    
-    print(f"downloading {filename}...")
-    resp = requests.get(url)
-    resp.raise_for_status()
-    local_path.write_bytes(resp.content)
-    return pd.read_csv(local_path, low_memory=False)
-
-
 def open_or_download_gz(url, local_name=None):
     """
     Download a gzipped CSV file, decompress, cache, and return as DataFrame.
